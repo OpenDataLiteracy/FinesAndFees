@@ -1,0 +1,38 @@
+---
+title: "FineFree"
+author: "ODL"
+date: "8/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(shiny)
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(curl)
+```
+
+```{r}
+df <- jsonlite::fromJSON("https://www.arcgis.com/sharing/rest/content/items/28e5da03800d419bb0c1170d98595b2c/data") 
+```
+
+```{r}
+ULC_FineFree_DF <- df[["operationalLayers"]][["featureCollection"]][["layers"]][[1]][["featureSet"]][["features"]][[1]][["attributes"]] %>% 
+  as.data.frame
+```
+
+```{r}
+ULC_FineFree_DF %>% 
+  select(library_name, ulc_member, type_of_elimintation, reason_for_stopping_fines, lat, long, source, policy_notes) %>%
+  write.csv("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_2019-08-06.csv")
+```
+
+
