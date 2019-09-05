@@ -18,6 +18,7 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(curl)
+library(fuzzyjoin)
 ```
 
 ```{r}
@@ -33,10 +34,47 @@ ULC_FineFree_DF <- df[["operationalLayers"]][["featureCollection"]][["layers"]][
 ```
 
 ```{r}
-ULC_FineFree_DF %>% 
+ULC_FineFree_DF <- ULC_FineFree_DF %>% 
   select(library_name, ulc_member, type_of_elimintation, reason_for_stopping_fines, lat, long, source, policy_notes) %>%
-  write.csv(paste("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
+  rename(type_of_elimination = type_of_elimintation) %>%
+  mutate(official_policy_link = NA, state = NA, fine_free_date = NA, fine_free_date_notes = NA, amnesty = NA, amnesty_notes = NA, literature = NA)
 ```
 
+```{r}
+write.csv(ULC_FineFree_DF, paste("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
+```
 
+```{r}
+FFL_DF <- read.csv("~/Documents/GitHub/FinesAndFees/Data/FineFreeLibraryDataCleaner-09052019.csv")
+```
+
+```{r}
+# Help from https://stackoverflow.com/a/44381219/5593458
+matches <- stringdist_join(ULC_FineFree_DF, FFL_DF, 
+                by = "library_name",
+                mode = "left",
+                ignore_case = TRUE, 
+                method = "jw", 
+                max_dist = 0.05, 
+                distance_col = "dist") %>%
+  select(library_name.x, library_name.y, dist) %>%
+  group_by(library_name.x) %>%
+  top_n(1, -dist)
+```
+
+```{r}
+libraries <- matches$library_name.y
+FFL_DF_Filtered <- FFL_DF %>%
+  filter(!library_name %in% libraries)
+```
+
+```{r}
+full_dataset <- merge(ULC_FineFree_DF, FFL_DF_Filtered, all = TRUE)
+```
+
+```{r}
+full_dataset %>%
+  write.csv(paste("~/Documents/GitHub/FinesAndFees/Data/MergedDataSet_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
+
+```
 
