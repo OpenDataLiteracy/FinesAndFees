@@ -21,6 +21,9 @@ library(curl)
 ```
 
 ```{r}
+#From these instructions: #https://stackoverflow.com/questions/50161492/how-do-i-scrape-data-from-an-arcgis-online-map
+#I deduced: https://www.arcgis.com/sharing/rest/content/items/28e5da03800d419bb0c1170d98595b2c/data
+
 df <- jsonlite::fromJSON("https://www.arcgis.com/sharing/rest/content/items/28e5da03800d419bb0c1170d98595b2c/data") 
 ```
 
@@ -32,7 +35,8 @@ ULC_FineFree_DF <- df[["operationalLayers"]][["featureCollection"]][["layers"]][
 ```{r}
 ULC_FineFree_DF %>% 
   select(library_name, ulc_member, type_of_elimintation, reason_for_stopping_fines, lat, long, source, policy_notes) %>%
-  write.csv("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_2019-08-06.csv")
+  write.csv(paste("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
 ```
+
 
 
