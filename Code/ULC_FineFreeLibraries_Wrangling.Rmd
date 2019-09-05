@@ -9,9 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r}
-library(shiny)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
@@ -29,27 +27,33 @@ df <- jsonlite::fromJSON("https://www.arcgis.com/sharing/rest/content/items/28e5
 ```
 
 ```{r}
+# Somehow I figured out what subset of the data I need for my dataframe
 ULC_FineFree_DF <- df[["operationalLayers"]][["featureCollection"]][["layers"]][[1]][["featureSet"]][["features"]][[1]][["attributes"]] %>% 
   as.data.frame
 ```
 
 ```{r}
+# Just keeping relevant columns and adding empty columns for data entry later
 ULC_FineFree_DF <- ULC_FineFree_DF %>% 
   select(library_name, ulc_member, type_of_elimintation, reason_for_stopping_fines, lat, long, source, policy_notes) %>%
-  rename(type_of_elimination = type_of_elimintation) %>%
+  rename(type_of_elimination = type_of_elimintation) %>% #there was a typo
   mutate(official_policy_link = NA, state = NA, fine_free_date = NA, fine_free_date_notes = NA, amnesty = NA, amnesty_notes = NA, literature = NA)
 ```
 
 ```{r}
+# Write out csv to local Github repo
 write.csv(ULC_FineFree_DF, paste("~/Documents/GitHub/FinesAndFees/Data/ULC_FineFreeLibraries_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
 ```
 
 ```{r}
+# Read in data provided to us from the Fine Free Libraries project and cleaned (to remove obvious duplicates, 
+# non-US libraries, non_public libraries) in Excel by Bree
 FFL_DF <- read.csv("~/Documents/GitHub/FinesAndFees/Data/FineFreeLibraryDataCleaner-09052019.csv")
 ```
 
 ```{r}
 # Help from https://stackoverflow.com/a/44381219/5593458
+# Fuzzy match the two difference dataframes on library_name to find duplicates
 matches <- stringdist_join(ULC_FineFree_DF, FFL_DF, 
                 by = "library_name",
                 mode = "left",
@@ -63,16 +67,19 @@ matches <- stringdist_join(ULC_FineFree_DF, FFL_DF,
 ```
 
 ```{r}
+# Remove the duplicates from the FFL_DF_Filtered dataframe
 libraries <- matches$library_name.y
 FFL_DF_Filtered <- FFL_DF %>%
   filter(!library_name %in% libraries)
 ```
 
 ```{r}
+# Merge the two dataframes for a comprehensive list of all US fine-free libraries (this list will NOT be error-free)
 full_dataset <- merge(ULC_FineFree_DF, FFL_DF_Filtered, all = TRUE)
 ```
 
 ```{r}
+# Write out dataset to csv
 full_dataset %>%
   write.csv(paste("~/Documents/GitHub/FinesAndFees/Data/MergedDataSet_",format(Sys.time(), "%Y-%m-%d"),".csv", sep=""))
 
