@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# Load relevant libraries
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(httr)
+```
+
+```{r}
+token <- read.delim("~/Google Drive File Stream/My Drive/Keys/g_access.txt", stringsAsFactor = FALSE, header = FALSE)
+```
+
+```{r}
+# Read in current data stored in private github repository
+url=paste0("https://raw.githubusercontent.com/OpenDataLiteracy/FinesAndFees/master/Data/DataEntry_MergedDataSet_2019-09-05.csv")
+x=GET(url, add_headers(Authorization = paste("token", token, sep = " ")))
+finefree <- content(x, type="text/csv", encoding = "UTF-8")
+```
+
+```{r}
+
+```
+
