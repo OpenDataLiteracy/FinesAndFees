@@ -10,6 +10,7 @@ library(tidyr)
 library(stringr)
 library(ggplot2)
 library(httr)
+library(lubridate)
 ```
 
 ```{r}
@@ -24,6 +25,42 @@ finefree <- content(x, type="text/csv", encoding = "UTF-8")
 ```
 
 ```{r}
+# help with dates times https://r4ds.had.co.nz/dates-and-times.html
+finefree$fine_free_date = as.Date(as_datetime(finefree$fine_free_date))
+```
 
+```{r}
+finefree %>%
+  filter(fine_free_date > "2015-01-01") %>%
+  ggplot(aes(x = fine_free_date)) +
+  stat_count(geom='col', aes(y=..count..)) +
+  scale_x_date(date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 75, hjust = 1), axis.title.x=element_blank())
+```
+
+```{r}
+#https://r4ds.had.co.nz/dates-and-times.html
+finefree %>%
+  filter(fine_free_date > "2010-01-01") %>%
+  count(week = floor_date(fine_free_date, "month")) %>% 
+  ggplot(aes(week, n)) +
+    geom_line()
+```
+
+
+```{r}
+#https://www.earthdatascience.org/courses/earth-analytics/time-series-data/summarize-time-series-by-month-in-r/
+finefree %>%
+  mutate(month = month(fine_free_date),
+         year = year(fine_free_date)) %>%
+  group_by(year, month) %>%
+  count() 
+```
+
+```{r}
+finefree %>%
+  filter(!is.na(fine_free_date)) %>%
+  select(library_name, state, type_of_elimination, fine_free_date) %>%
+  arrange(desc(fine_free_date))
 ```
 
