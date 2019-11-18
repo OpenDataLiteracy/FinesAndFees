@@ -60,7 +60,8 @@ finefree %>%
 ```{r}
 finefree %>%
   filter(!is.na(fine_free_date)) %>%
-  select(library_name, state, type_of_elimination, fine_free_date) %>%
-  arrange(desc(fine_free_date))
+  select(library_name, state, type_of_elimination, fine_free_date, official_policy_link, library_url) %>%
+  arrange(desc(fine_free_date)) %>%
+  write.csv("~/Documents/GitHub/FinesAndFees/Data/Libraries_with_FineFreeDates.csv")
 ```
 
