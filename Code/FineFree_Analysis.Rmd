@@ -42,11 +42,35 @@ finefree %>%
 #https://r4ds.had.co.nz/dates-and-times.html
 finefree %>%
   filter(fine_free_date > "2010-01-01") %>%
-  count(week = floor_date(fine_free_date, "month")) %>% 
-  ggplot(aes(week, n)) +
+  count(month = floor_date(fine_free_date, "month")) %>% 
+  ggplot(aes(month, n)) +
     geom_line()
 ```
 
+```{r}
+#https://r4ds.had.co.nz/dates-and-times.html
+finefree %>%
+  filter(fine_free_date > "2010-01-01") %>%
+  count(year = floor_date(fine_free_date, "year")) %>% 
+  ggplot(aes(year, n)) +
+    geom_point() +
+    geom_line() +
+    geom_text(aes(label=n), vjust=-0.9, hjust=0.9, size = 3) +
+    scale_x_date(date_breaks = "1 year",
+                 labels=scales::date_format("%Y")) +
+    labs(title="Number of Fine Free Public Libraries in U.S.", y = "Count", x = "Year the Fine-Free Policy was Enacted", size = 4)
+
+ggsave("~/Documents/Github/FinesAndFees/Images/FineFreeLibrariesPerYear.png")
+```
+
+```{r}
+#https://www.earthdatascience.org/courses/earth-analytics/time-series-data/summarize-time-series-by-month-in-r/
+finefree %>%
+  mutate(month = month(fine_free_date),
+         year = year(fine_free_date)) %>%
+  group_by(year) %>%
+  count() 
+```
 
 ```{r}
 #https://www.earthdatascience.org/courses/earth-analytics/time-series-data/summarize-time-series-by-month-in-r/
@@ -54,6 +78,18 @@ finefree %>%
   mutate(month = month(fine_free_date),
          year = year(fine_free_date)) %>%
   group_by(year, month) %>%
+  count() 
+```
+
+```{r}
+#https://www.earthdatascience.org/courses/earth-analytics/time-series-data/summarize-time-series-by-month-in-r/
+finefree %>%
+  filter(fine_free_date > "2017-01-01",
+         fine_free_date < "2019-02-01",
+        !is.na(fine_free_date)) %>%
+  mutate(month = month(fine_free_date),
+         year = year(fine_free_date)) %>%
+  #group_by(year, month) %>%
   count() 
 ```
 
