@@ -48,17 +48,27 @@ finefree %>%
 ```
 
 ```{r}
-#https://r4ds.had.co.nz/dates-and-times.html
+# References
+# https://r4ds.had.co.nz/dates-and-times.html
+# http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements
 finefree %>%
   filter(fine_free_date > "2010-01-01") %>%
   count(year = floor_date(fine_free_date, "year")) %>% 
   ggplot(aes(year, n)) +
-    geom_point() +
-    geom_line() +
-    geom_text(aes(label=n), vjust=-0.9, hjust=0.9, size = 3) +
+    geom_point(color = "white") +
+    geom_line(color = "white") +
+    geom_text(aes(label=n), vjust=-0.9, hjust=0.9, size = 4, color = "white") +
     scale_x_date(date_breaks = "1 year",
                  labels=scales::date_format("%Y")) +
-    labs(title="Number of Fine Free Public Libraries in U.S.", y = "Count", x = "Year the Fine-Free Policy was Enacted", size = 4)
+    scale_y_continuous(limits = c(0,110)) +
+    labs(title="Number of Fine Free Public Libraries in U.S.", y = "Count", x = "Year the Fine-Free Policy was Enacted", size = 4) +
+    theme(panel.background = element_rect(fill = "#00ADB2",
+                                colour = "#00ADB2",
+                                size = 0.5, linetype = "solid"),
+          panel.grid.major.y = element_line(size = 0.2, linetype = 'solid',
+                                        colour = "white"), 
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor = element_blank())
 
 ggsave("~/Documents/Github/FinesAndFees/Images/FineFreeLibrariesPerYear.png")
 ```
@@ -92,6 +102,26 @@ finefree %>%
   #group_by(year, month) %>%
   count() 
 ```
+
+```{r}
+finefree %>%
+  filter(fine_free_date > "2010-01-01",
+        !is.na(fine_free_date)) %>%
+  #mutate(month = month(fine_free_date),
+         #year = year(fine_free_date)) %>%
+  #group_by(year, month) %>%
+  count() 
+```
+
+
+```{r}
+finefree %>%
+  filter(fine_free_date > "2017-01-01",
+         fine_free_date < "2019-02-01",
+        !is.na(fine_free_date)) %>%
+ write.csv("~/Documents/GitHub/FinesAndFees/Data/103_FineFree_Libraries.csv")
+```
+
 
 ```{r}
 finefree %>%
