@@ -11,6 +11,7 @@ library(stringr)
 library(ggplot2)
 library(httr)
 library(lubridate)
+library(caTools)
 ```
 
 ```{r}
@@ -102,6 +103,32 @@ finefree %>%
   #group_by(year, month) %>%
   count() 
 ```
+
+```{r}
+df <- finefree %>%
+  filter(fine_free_date > "2017-01-01",
+         fine_free_date < "2019-02-01",
+        !is.na(fine_free_date),
+        !library_name %in% c("Plano Public Library", "Weymouth Public LIbraries",
+                             "Selbyville Public Library", "Kitsap Regional Library",
+                             "Racine Public Library", "Lewis Cooper Jr. Memorial Library",
+                             "Nashville Public Library", "Santa Clara City Library",
+                             "Washington County Cooperative Library Services", "Rochester Public Library"))
+split = sample.split(df$library_name, SplitRatio = 0.5)
+Bree_set = subset(df, split == TRUE)
+Nic_set = subset(df, split == FALSE)
+
+Nic_set <- Nic_set %>%
+  select(library_name, state, fine_free_date, type_of_elimination, source)
+
+Bree_set <- Bree_set %>%
+  select(library_name, state, fine_free_date, type_of_elimination, source)
+
+
+write.csv(Bree_set, "~/Documents/GitHub/FinesAndFees/Data/Bree_FOIA.csv")
+write.csv(Nic_set, "~/Documents/GitHub/FinesAndFees/Data/Nic_FOIA.csv")
+```
+
 
 ```{r}
 finefree %>%
