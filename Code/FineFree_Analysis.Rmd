@@ -142,11 +142,13 @@ finefree %>%
 
 
 ```{r}
-finefree %>%
-  filter(fine_free_date > "2017-01-01",
-         fine_free_date < "2019-02-01",
-        !is.na(fine_free_date)) %>%
- write.csv("~/Documents/GitHub/FinesAndFees/Data/103_FineFree_Libraries.csv")
+# Commented out because I've taken this file and added data about FOIAs manually - don't want to overwrite that file
+
+# finefree %>%
+#   filter(fine_free_date > "2017-01-01",
+#          fine_free_date < "2019-02-01",
+#         !is.na(fine_free_date)) %>%
+#  write.csv("~/Documents/GitHub/FinesAndFees/Data/103_FineFree_Libraries.csv")
 ```
 
 
@@ -158,3 +160,22 @@ finefree %>%
   write.csv("~/Documents/GitHub/FinesAndFees/Data/Libraries_with_FineFreeDates.csv")
 ```
 
+```{r}
+# Read in current data stored in private github repository
+url=paste0("https://raw.githubusercontent.com/OpenDataLiteracy/FinesAndFees/master/Data/103_FineFree_Libraries.csv")
+x=GET(url, add_headers(Authorization = paste("token", token, sep = " ")))
+finefree103 <- content(x, type="text/csv", encoding = "UTF-8")
+```
+
+```{r}
+finefree103 %>% 
+  group_by(FOIA_Filed_Method) %>%
+  tally()
+```
+
+```{r}
+finefree103 %>%
+  filter(!is.na(FOIA_Filed_Date)) %>%
+  group_by(FOIA_Result) %>%
+  tally()
+```
